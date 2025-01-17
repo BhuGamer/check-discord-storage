@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Discord File Uploader</title>
+  <style>
+    /* Reset and Basic Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #4e54c8, #8f94fb);
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    h1, p {
+      margin-bottom: 1rem;
+    }
+
+    /* Card Style */
+    .container {
+      background: #2b2f4c;
+      border-radius: 16px;
+      box-shadow: 0px 8px 15px rgba(0, 0, 0, 0.2);
+      max-width: 400px;
+      width: 90%;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    /* Inputs and Buttons */
+    input, button {
+      width: 100%;
+      padding: 0.8rem;
+      margin-bottom: 1rem;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      outline: none;
+    }
+
+    input[type="file"] {
+      background: #3c405a;
+      color: #ccc;
+      cursor: pointer;
+    }
+
+    input[type="file"]::-webkit-file-upload-button {
+      visibility: hidden;
+    }
+
+    input[type="url"] {
+      background: #3c405a;
+      color: #fff;
+      border: 1px solid transparent;
+      transition: 0.3s;
+    }
+
+    input[type="url"]:focus {
+      border-color: #8f94fb;
+    }
+
+    button {
+      background: #6a6ed6;
+      color: #fff;
+      font-weight: bold;
+      transition: 0.3s;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #8f94fb;
+      transform: translateY(-2px);
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Status Text */
+    #status {
+      font-size: 0.9rem;
+      color: #e0e0e0;
+      margin-top: 1rem;
+    }
+
+    #status.success {
+      color: #6ef5b9;
+    }
+
+    #status.error {
+      color: #f76c6c;
+    }
+
+    /* Animation */
+    .fade-in {
+      animation: fadeIn 1s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container fade-in">
+    <h1>Discord File Uploader</h1>
+    <form id="uploadForm">
+      <input type="file" id="file" required>
+      <input type="url" id="webhookUrl" placeholder="Enter Discord Webhook URL" required>
+      <button type="submit">Upload File</button>
+    </form>
+    <p id="status"></p>
+  </div>
+
+  <script>
+    const uploadForm = document.getElementById('uploadForm');
+    const status = document.getElementById('status');
+
+    uploadForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const fileInput = document.getElementById('file');
+      const webhookUrl = document.getElementById('webhookUrl').value;
+
+      if (!fileInput.files.length) {
+        status.textContent = "Please select a file.";
+        status.className = 'error';
+        return;
+      }
+
+      const file = fileInput.files[0];
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        status.textContent = "Uploading...";
+        status.className = '';
+        const response = await fetch(webhookUrl, {
+          method: 'POST',
+          body: formData,
+        });
+
+        if (response.ok) {
+          status.textContent = "File uploaded successfully!";
+          status.className = 'success';
+        } else {
+          status.textContent = "Failed to upload the file. Check the webhook URL.";
+          status.className = 'error';
+        }
+      } catch (error) {
+        console.error(error);
+        status.textContent = "An error occurred. Please try again.";
+        status.className = 'error';
+      }
+    });
+  </script>
+</body>
+</html>
